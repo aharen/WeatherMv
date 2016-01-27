@@ -76,16 +76,19 @@ class WeatherMv {
 			$ch = curl_init ($uri);
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_BINARYTRANSFER,1);
+			curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_NOBODY, false);
 			$rawdata = curl_exec($ch);
 			curl_close ($ch);
-			$this->api_return = $rawdata;
+
+			$removeUTF8BOM = substr($rawdata, 3);
+			$cleanData = stripslashes($removeUTF8BOM);
+			$this->api_return = json_decode($cleanData);
 		
  		} catch (Exception $e) {			
-			$this->api_return = 'Error communicating with Weather API: '.$e->getMessage(); 
-		}
+			return $this->output('Error', 'Error communicating with Weather API: '.$e->getMessage());
 
+		}
 	}
 
 	private function output($status, $message, $return = NULL) {
@@ -98,24 +101,6 @@ class WeatherMv {
 
 	}
 
-	private function formatData() {
-
-		if (empty($this->api_return)) {
-			return $this->output('Error', 'API return is empty');
-		}
-
-		$expl = explode('","', $this->api_return);
-		$formatedData = [];
-		foreach ($expl as $item) {
-			if ($item !== '') {
-				$explItem = explode('":"', $item);
-				$formatedData[ str_replace('{"', '', $explItem[0]) ] = str_replace('"}', '', $explItem[1]);
-			}
-		}
-
-		return (object)$formatedData;
-	}
-
 	public function getData() {
 		
 		if (!$this->isValidCity()) {
@@ -126,7 +111,7 @@ class WeatherMv {
 		
 		$this->doCurl($curlUrl);
 
-		return $this->output('Success', 'OK', $this->formatData());
+		return $this->output('Success', 'OK', $this->api_return);
 	}
 
 }
