@@ -36,21 +36,33 @@ class WeatherMv {
 
 	private $api_return;
 
+	public function __construct($city = null) {
+		$this->setCity($city);
+	}
+
 	private function getUrl() {
 		return $this->url;
+	}
+
+	private function setCity($city) {
+		$this->city = $city;
+	}
+
+	private function getCity() {
+		return $this->city;
 	}
 
 	private function getCities() {
 		return $this->cities;
 	}
 
-	private function isValidCity($city = null) {
+	private function isValidCity() {
 		
-		if (!isset($city) || $city === null) {
+		if ($this->getCity() === null || $this->getCity() === '') {
 			return false;
 		}
 
-		if (!in_array($city, $this->getCities())) {
+		if (!in_array($this->getCity(), $this->getCities())) {
 			return false;
 		}
 
@@ -104,13 +116,13 @@ class WeatherMv {
 		return (object)$formatedData;
 	}
 
-	public function getData($city = 'Male') {
+	public function getData() {
 		
-		if (!$this->isValidCity($city)) {
+		if (!$this->isValidCity()) {
 			return $this->output('Error', 'Invalid City');
 		}
 
-		$curlUrl = $this->url . $city;
+		$curlUrl = $this->url . $this->getCity();
 		
 		$this->doCurl($curlUrl);
 
