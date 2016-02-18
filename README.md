@@ -1,6 +1,9 @@
 # WeatherMv
 Maldives weather from Maldives Meteorology Service - http://www.meteorology.gov.mv/
 
+## Installation
+
+	composer require aharen/weather-mv
 
 ## Basic Usage
 
